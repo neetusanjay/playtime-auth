@@ -16,12 +16,10 @@
             color: #ffffff;
             text-align: center;
         }
-        .container {
-            max-width: 400px;
-            padding: 20px;
-        }
+        .container { max-width: 400px; padding: 20px; }
         h1 { color: #3ecf8e; margin-bottom: 10px; }
         p { color: #aaaaaa; font-size: 16px; line-height: 1.5; }
+        .error-text { color: #ff6b6b !important; font-weight: bold; }
         .btn {
             display: inline-block;
             margin-top: 20px;
@@ -42,26 +40,33 @@
     </div>
 
     <script>
-        // Extract the parameters Supabase appends to the link (access_token, refresh_token, error, etc.)
         const currentHash = window.location.hash;
         const currentSearch = window.location.search;
-        
-        // Build the target deep link back to your app
         const appDeepLink = "playtimeplus://" + currentSearch + currentHash;
 
-        // 1. Try to automatically open the app immediately for mobile users
-        window.location.replace(appDeepLink);
+        // Check if Supabase sent an error inside the URL parameters
+        const urlParams = new URLSearchParams(currentHash.replace('#', '?'));
+        const hasError = urlParams.has('error') || new URLSearchParams(currentSearch).has('error');
 
-        // 2. Update UI for desktop users or mobile users without the app installed
-        setTimeout(() => {
+        if (hasError) {
+            // Display an explicit error message to the user
+            document.getElementById("status-message").className = "error-text";
             document.getElementById("status-message").innerHTML = 
-                "If you are on a mobile device, your app should open automatically.<br><br>If you are on a desktop computer, please open the email directly on your phone to launch the app.";
-            
-            // Show manual button as a backup route
-            const btn = document.getElementById("fallback-button");
-            btn.href = appDeepLink;
-            btn.style.display = "inline-block";
-        }, 1500);
+                "This verification link has expired or has already been used.<br><br>Please trigger a new confirmation email from inside the app.";
+        } else {
+            // Automatically try to bounce mobile users into the app
+            window.location.replace(appDeepLink);
+
+            // Display success message for desktop users
+            setTimeout(() => {
+                document.getElementById("status-message").innerHTML = 
+                    "Email successfully verified!<br><br>If you are on a mobile device, your app should open automatically. If you are on desktop, please switch back to your phone to log in.";
+                
+                const btn = document.getElementById("fallback-button");
+                btn.href = appDeepLink;
+                btn.style.display = "inline-block";
+            }, 1000);
+        }
     </script>
 </body>
 </html>
