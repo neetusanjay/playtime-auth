@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayTime+ Authentication</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            padding: 20px;
+        }
+        h1 { color: #3ecf8e; margin-bottom: 10px; }
+        p { color: #aaaaaa; font-size: 16px; line-height: 1.5; }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #3ecf8e;
+            color: #121212;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PlayTime+</h1>
+        <p id="status-message">Verifying your account details...</p>
+        <a id="fallback-button" href="playtimeplus://" class="btn" style="display: none;">Open PlayTime+ App</a>
+    </div>
+
+    <script>
+        // Extract the parameters Supabase appends to the link (access_token, refresh_token, error, etc.)
+        const currentHash = window.location.hash;
+        const currentSearch = window.location.search;
+        
+        // Build the target deep link back to your app
+        const appDeepLink = "playtimeplus://" + currentSearch + currentHash;
+
+        // 1. Try to automatically open the app immediately for mobile users
+        window.location.replace(appDeepLink);
+
+        // 2. Update UI for desktop users or mobile users without the app installed
+        setTimeout(() => {
+            document.getElementById("status-message").innerHTML = 
+                "If you are on a mobile device, your app should open automatically.<br><br>If you are on a desktop computer, please open the email directly on your phone to launch the app.";
+            
+            // Show manual button as a backup route
+            const btn = document.getElementById("fallback-button");
+            btn.href = appDeepLink;
+            btn.style.display = "inline-block";
+        }, 1500);
+    </script>
+</body>
+</html>
